@@ -36,9 +36,17 @@ export default defineConfig({
 
   /* Configure projects for major browsers */
   projects: [
+    
     {
       name: 'chromium',
-      use: { ...devices['Desktop Chrome'] },
+      use: {
+        ...devices['Desktop Chrome'],
+        channel: 'chrome',
+        locale: 'es-MX',
+        extraHTTPHeaders: {
+          'Accept-Language': 'es-MX,es;q=0.9,en;q=0.8',
+        },
+      },
     },
 
     {
@@ -46,10 +54,10 @@ export default defineConfig({
       use: { ...devices['Desktop Firefox'] },
     },
 
-    {
-      name: 'webkit',
-      use: { ...devices['Desktop Safari'] },
-    },
+    //{
+      //name: 'webkit',
+      //use: { ...devices['Desktop Safari'] },
+    //},
 
     /* Test against mobile viewports. */
     // {

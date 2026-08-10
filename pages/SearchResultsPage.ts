@@ -1,4 +1,4 @@
-import { Page } from '@playwright/test';
+import { Page, expect } from '@playwright/test';
 
 export interface Product {
   name: string;
@@ -9,27 +9,35 @@ export class SearchResultsPage {
   constructor(private page: Page) {}
 
   async filterByColor(color: string): Promise<void> {
-    const checkbox = this.page.getByRole('checkbox', { name: new RegExp(`^${color}`, 'i') });
-    
-    await Promise.all([
-      this.page.waitForResponse(r => 
-        r.url().includes('web-bff/product/search') && r.status() === 200
-      ),
-      checkbox.click(),
-    ]);
+    const checkbox = this.page.getByRole('checkbox', {
+      name: new RegExp(`^${color}`, 'i')
+    });
+  
+    await checkbox.click();
+  
+    await expect(checkbox).toBeChecked();
   }
   
-  async sortByPriceAscending(): Promise<unknown> {
+  async sortByPriceAscending() {
     await this.page.getByTestId('dropdown-sorting-button').click();
-    
+  
     const [response] = await Promise.all([
-      this.page.waitForResponse(r => 
-        r.url().includes('web-bff/product/search') && r.status() === 200
-      ),
-      this.page.getByRole('option', { name: 'Menor precio' }).click(),
+      this.page.waitForResponse(response => {
+        const url = response.url();
+  
+        return (
+          url.includes('web-bff/product/search') &&
+          url.includes('sort=sortPrice%7C0') &&
+          response.status() === 200
+        );
+      }),
+  
+      this.page.getByRole('option', {
+        name: 'Menor precio'
+      }).click(),
     ]);
-    
-    return response.json(); // ahora sí obtienes JSON real, no HTML
+  
+    return response.json();
   }
 
   async getFirstNProducts(n: number): Promise<Product[]> {
